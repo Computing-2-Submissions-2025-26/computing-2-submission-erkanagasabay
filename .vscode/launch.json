@@ -28,13 +28,28 @@
                 "<node_internals>/**"
             ],
             // You'll need to change this line below to point to your module.
-            "program": "${workspaceFolder}/web-app/Module.js"
+            "program": "${workspaceFolder}/web-app/Tabula.js"
         },
         {
             "name": "Generate Docs",
             "command": "jsdoc -c jsdoc.json; exit",
             "request": "launch",
             "type": "node-terminal"
-        }
+        },
+        {
+            "name": "View Docs",
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "reloadOnAttach": true,
+            "file": "${workspaceFolder}/docs/Tabula.html",
+            "preferences": {
+                "security.fileuri.strict_origin_policy": false
+            },
+            "skipFiles": [
+                "${workspaceFolder}/node_modules/**",
+                "<node_internals>/**"
+            ]
+        },
     ]
 }

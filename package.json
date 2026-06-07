@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "web-app/Module.js",
+  "scripts": {
+    "test": "mocha --recursive web-app/tests"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {

@@ -1,9 +1,200 @@
-<!-- In HTML Comments are written like this -->
-<!-- They can all be removed for your apps -->
-<!doctype html> <!-- This first line tells browsers to expect modern standard html 5 -->
-<html lang="en-gb"> <!-- This is indicates the page is written in British English, useful for accessibility -->
-<meta charset="utf-8"> <!-- This indicates how the file is encoded. utf-8 is standard -->
-<title>Your Web-app Title</title> <!-- All pages need a title, this will be displayed in the browser's title bar -->
-<link rel="stylesheet" href="default.css"> <!-- Import style sheet – default.css -->
-<link rel="icon" href="./assets/favicon.png"> <!-- Import 'Favorites Icon' – favicon.png -->
-<script type="module" src="main.js"></script> <!-- Load the main script. Must be type="module". Have only one of these -->
+<!doctype html> 
+<html lang="en-gb">
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Tabula</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="./assets/favicon.png">
+
+    <script
+        type="module"
+        src="main.js"
+        defer
+    ></script>
+</head>
+
+<body>
+    <header>
+        <div class="title-group">
+            <h1>Tabula</h1>
+
+            <p>
+                Browser-based implementation of
+                the ancient Roman board game.
+            </p>
+
+            <a href="/docs/">API Documentation</a>
+        </div>
+
+        <div class="header-controls">
+            <button
+                id="restart-button"
+                type="button"
+                class="action-button"
+            >
+                Restart game
+            </button>
+        </div>
+    </header>
+
+    <aside
+        class="status-panel player-panel left"
+        aria-labelledby="white-heading"
+    >
+        <h2 id="white-heading">White</h2>
+
+        <div
+            id="dice-white"
+            class="dice-display"
+            aria-live="polite"
+        >
+            Click roll dice to begin
+        </div>
+
+        <p
+            id="winner-message"
+            class="winner-message"
+            aria-live="assertive"
+        ></p>
+
+        <div class="control-group">
+            <button
+                id="roll-white-button"
+                type="button"
+                class="action-button"
+            >
+                Roll dice
+            </button>
+
+            <button
+                id="end-turn-white-button"
+                type="button"
+                class="action-button"
+            >
+                End turn
+            </button>
+        </div>
+
+        <div class="control-group">
+            <button
+                id="bar-white-button"
+                type="button"
+                class="bar-button"
+            >
+                White bar:
+                <span id="bar-white">0</span>
+            </button>
+        </div>
+
+        <div class="control-group">
+            <button
+                id="bear-off-white-button"
+                type="button"
+                class="action-button"
+            >
+                Bear off selected piece
+            </button>
+        </div>
+
+        <div class="status-row">
+            <strong>White borne off:</strong>
+            <span id="borne-white">0</span>
+        </div>
+    </aside>
+
+    <aside
+        class="status-panel player-panel right"
+        aria-labelledby="black-heading"
+    >
+        <h2 id="black-heading">Black</h2>
+
+        <div
+            id="dice-black"
+            class="dice-display"
+            aria-live="polite"
+        >
+            Click roll dice to begin
+        </div>
+
+        <p
+            class="winner-message"
+            aria-live="assertive"
+        ></p>
+
+        <div class="control-group">
+            <button
+                id="roll-black-button"
+                type="button"
+                class="action-button"
+            >
+                Roll dice
+            </button>
+
+            <button
+                id="end-turn-black-button"
+                type="button"
+                class="action-button"
+            >
+                End turn
+            </button>
+        </div>
+
+        <div class="control-group">
+            <button
+                id="bar-black-button"
+                type="button"
+                class="bar-button"
+            >
+                Black bar:
+                <span id="bar-black">0</span>
+            </button>
+        </div>
+
+        <div class="control-group">
+            <button
+                id="bear-off-black-button"
+                type="button"
+                class="action-button"
+            >
+                Bear off selected piece
+            </button>
+        </div>
+
+        <div class="status-row">
+            <strong>Black borne off:</strong>
+            <span id="borne-black">0</span>
+        </div>
+    </aside>
+
+    <main>
+        <section
+            class="board-section"
+            aria-label="Game board section"
+        >
+            <div class="board-header">
+                <span class="board-current-player">
+                    Current player:
+                    <strong id="board-current-player"></strong>
+                </span>
+            </div>
+
+            <div
+                class="board-container"
+                aria-label="Tabula board area"
+            >
+                <table
+                    id="board"
+                    aria-label="Tabula board"
+                ></table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
