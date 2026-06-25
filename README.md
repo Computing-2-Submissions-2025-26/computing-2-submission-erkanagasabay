@@ -2,8 +2,6 @@
 # Computing 2 Coursework Submission.
 **CID**: 02373983
 
-This is the submission template for your Computing 2 Applications coursework submission.
-
 ## Checklist
 ### Install dependencies locally
 This template relies on a a few packages from the Node Package Manager, npm.
@@ -12,7 +10,6 @@ To install them run the following commands in the terminal.
 npm install
 ```
 These won't be uploaded to your repository because of the `.gitignore`.
-I'll run the same commands when I download your repos.
 
 ## Run and Docs Workflow
 
