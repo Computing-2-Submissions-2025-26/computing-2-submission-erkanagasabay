@@ -1,6 +1,15 @@
 {
   "jslint.excludePath": ".jslintignore",
   "jslint.exclude": {
+    "docs/scripts/**/*.js": true,
+    "docs/scripts/collapse.js": true,
+    "docs/scripts/commonNav.js": true,
+    "docs/scripts/linenumber.js": true,
+    "docs/scripts/nav.js": true,
+    "docs/scripts/polyfill.js": true,
+    "docs/scripts/search.js": true,
+    "docs/scripts/prettify/prettify.js": true,
+    "web-app/ramda.js": true,
     "docs/scripts/prettify/**/*.js": true
   }
 }

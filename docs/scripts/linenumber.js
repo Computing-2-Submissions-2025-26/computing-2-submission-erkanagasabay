@@ -1,7 +1,6 @@
 /*global document */
-
-function applyLineNumbers() {
-    var source = document.getElementsByClassName("prettyprint source linenums");
+(function() {
+    var source = document.getElementsByClassName('prettyprint source linenums');
     var i = 0;
     var lineNumber = 0;
     var lineId;
@@ -11,19 +10,16 @@ function applyLineNumbers() {
 
     if (source && source[0]) {
         anchorHash = document.location.hash.substring(1);
-        lines = source[0].getElementsByTagName("li");
+        lines = source[0].getElementsByTagName('li');
         totalLines = lines.length;
 
-        while (i < totalLines) {
-            lineNumber += 1;
-            lineId = "line" + lineNumber;
+        for (; i < totalLines; i++) {
+            lineNumber++;
+            lineId = 'line' + lineNumber;
             lines[i].id = lineId;
             if (lineId === anchorHash) {
-                lines[i].className += " selected";
+                lines[i].className += ' selected';
             }
-            i += 1;
         }
     }
-}
-
-applyLineNumbers();
+})();

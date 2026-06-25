@@ -1,150 +1,99 @@
-/*global document, hideAllButCurrent */
-var searchAttr = "data-search-mode";
 
-function contains(node, match) {
-    var text = node.textContent || node.innerText || "";
-    return text.toUpperCase().indexOf(match) !== -1;
-}
+var searchAttr = 'data-search-mode';
+function contains(a,m){
+    return (a.textContent || a.innerText || "").toUpperCase().indexOf(m) !== -1;
+};
 
-function setDisplay(selector, value) {
-    var nodes = document.querySelectorAll(selector);
-    var i = 0;
-    while (i < nodes.length) {
-        nodes[i].style.display = value;
-        i += 1;
-    }
-}
-
-function countMatchingLinks(parent, search) {
-    var links = parent.querySelectorAll("a");
-    var i = 0;
-    var count = 0;
-
-    while (i < links.length) {
-        if (contains(links[i], search)) {
-            count += 1;
-        }
-        i += 1;
-    }
-    return count;
-}
-
-function countUlMatchesAndVisible(parent, search) {
-    var uls = parent.querySelectorAll("ul");
-    var i = 0;
-    var j;
-    var countUl = 0;
-    var countUlVisible = 0;
-    var ulNode;
-    var children;
-
-    while (i < uls.length) {
-        ulNode = uls[i];
-        children = ulNode.children;
-        j = 0;
-
-        if (contains(ulNode, search)) {
-            countUl += 1;
-        }
-
-        while (j < children.length) {
-            if (children[j].style.display !== "none") {
-                countUlVisible += 1;
-            }
-            j += 1;
-        }
-        i += 1;
-    }
-
-    return {
-        countUl: countUl,
-        countUlVisible: countUlVisible
-    };
-}
-
-function updateParentVisibility(search) {
-    var parents = document.querySelectorAll("nav > ul > li");
-    var i = 0;
-    var parent;
-    var countSearchA;
-    var counts;
-
-    while (i < parents.length) {
-        parent = parents[i];
-        countSearchA = countMatchingLinks(parent, search);
-        counts = countUlMatchesAndVisible(parent, search);
-
-        if (countSearchA === 0 && counts.countUl === 0) {
-            parent.style.display = "none";
-        } else if (countSearchA === 0 && counts.countUlVisible === 0) {
-            parent.style.display = "none";
-        }
-        i += 1;
-    }
-}
-
-function updateCollapseTopVisibility() {
-    var groups = document.querySelectorAll("nav > ul.collapse_top");
-    var i = 0;
-    var group;
-    var children;
-    var j;
-    var countVisible;
-
-    while (i < groups.length) {
-        group = groups[i];
-        children = group.querySelectorAll("li");
-        j = 0;
-        countVisible = 0;
-
-        while (j < children.length) {
-            if (children[j].style.display !== "none") {
-                countVisible += 1;
-            }
-            j += 1;
-        }
-
-        if (countVisible === 0) {
-            group.style.display = "none";
-        }
-        i += 1;
-    }
-}
-
-function handleSearch(event) {
-    var search = event.target.value.toUpperCase();
-    var links;
-    var i;
+//on search
+document.getElementById("nav-search").addEventListener("keyup", function(event) {
+    var search = this.value.toUpperCase();
 
     if (!search) {
+        //no search, show all results
         document.documentElement.removeAttribute(searchAttr);
-        setDisplay("nav > ul > li:not(.level-hide)", "block");
+        
+        document.querySelectorAll("nav > ul > li:not(.level-hide)").forEach(function(elem) {
+            elem.style.display = "block";
+        });
 
-        if (typeof hideAllButCurrent === "function") {
+        if (typeof hideAllButCurrent === "function"){
+            //let's do what ever collapse wants to do
             hideAllButCurrent();
-            return;
+        } else {
+            //menu by default should be opened
+            document.querySelectorAll("nav > ul > li > ul li").forEach(function(elem) {
+                elem.style.display = "block";
+            });
         }
+    } else {
+        //we are searching
+        document.documentElement.setAttribute(searchAttr, '');
 
-        setDisplay("nav > ul > li > ul li", "block");
-        return;
+        //show all parents
+        document.querySelectorAll("nav > ul > li").forEach(function(elem) {
+            elem.style.display = "block";
+        });
+        document.querySelectorAll("nav > ul").forEach(function(elem) {
+            elem.style.display = "block";
+        });
+        //hide all results
+        document.querySelectorAll("nav > ul > li > ul li").forEach(function(elem) {
+            elem.style.display = "none";
+        });
+        //show results matching filter
+        document.querySelectorAll("nav > ul > li > ul a").forEach(function(elem) {
+            if (!contains(elem.parentNode, search)) {
+                return;
+            }
+            elem.parentNode.style.display = "block";
+        });
+        //hide parents without children
+        document.querySelectorAll("nav > ul > li").forEach(function(parent) {
+            var countSearchA = 0;
+            parent.querySelectorAll("a").forEach(function(elem) {
+                if (contains(elem, search)) {
+                    countSearchA++;
+                }
+            });
+            
+            var countUl = 0;
+            var countUlVisible = 0;
+            parent.querySelectorAll("ul").forEach(function(ulP) {
+                // count all elements that match the search
+                if (contains(ulP, search)) {
+                    countUl++;
+                }
+                
+                // count all visible elements
+                var children = ulP.children
+                for (i=0; i<children.length; i++) {
+                    var elem = children[i];
+                    if (elem.style.display != "none") {
+                        countUlVisible++;
+                    }
+                }
+            });
+          
+            if (countSearchA == 0 && countUl === 0){
+                //has no child at all and does not contain text
+                parent.style.display = "none";
+            } else if(countSearchA == 0 && countUlVisible == 0){
+                //has no visible child and does not contain text
+                parent.style.display = "none";
+            }
+        });
+        document.querySelectorAll("nav > ul.collapse_top").forEach(function(parent) {
+            var countVisible = 0;
+            parent.querySelectorAll("li").forEach(function(elem) {
+                if (elem.style.display !== "none") {
+                    countVisible++;
+                }
+            });
+          
+            if (countVisible == 0) {
+                //has no child at all and does not contain text
+                parent.style.display = "none";
+            }
+        });
     }
-
-    document.documentElement.setAttribute(searchAttr, "");
-    setDisplay("nav > ul > li", "block");
-    setDisplay("nav > ul", "block");
-    setDisplay("nav > ul > li > ul li", "none");
-
-    links = document.querySelectorAll("nav > ul > li > ul a");
-    i = 0;
-    while (i < links.length) {
-        if (contains(links[i].parentNode, search)) {
-            links[i].parentNode.style.display = "block";
-        }
-        i += 1;
-    }
-
-    updateParentVisibility(search);
-    updateCollapseTopVisibility();
-}
-
-document.getElementById("nav-search").addEventListener("keyup", handleSearch);
+});

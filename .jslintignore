@@ -1,2 +1,11 @@
 docs/scripts/prettify/
+docs/scripts/**/*.js
+docs/scripts/collapse.js
+docs/scripts/commonNav.js
+docs/scripts/linenumber.js
+docs/scripts/nav.js
+docs/scripts/polyfill.js
+docs/scripts/search.js
+docs/scripts/prettify/prettify.js
+web-app/ramda.js
 node_modules/

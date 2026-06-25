@@ -1,73 +1,28 @@
-/*global fetch, hideAllButCurrent, scrollToNavItem */
-
-function initNav() {
-    if (typeof scrollToNavItem !== "function") {
-        return false;
-    }
-    scrollToNavItem();
-
-    // hideAllButCurrent is not always loaded.
-    if (typeof hideAllButCurrent === "function") {
-        hideAllButCurrent();
-    }
-    return true;
-}
-
-function waitForNavJs() {
-    var i = 0;
-
-    function tryInit() {
-        if (initNav()) {
-            return;
-        }
-        if (i < 100) {
-            i += 1;
-            setTimeout(tryInit, 300);
-            return;
-        }
-        console.error(new Error("nav.js not loaded after 30s waiting for it"));
-    }
-
-    tryInit();
-}
-
-function onNavResponse(response) {
-    if (response.ok) {
-        return response.text();
-    }
-    return (
-        response.url + " => " +
-        response.status + " " + response.statusText
-    );
-}
-
-function onNavBody(body) {
-    document.querySelector("nav").innerHTML += body;
-    return initNav();
-}
-
-function onNavDone(done) {
-    if (done) {
-        return;
-    }
-    waitForNavJs();
-}
-
-function onNavError(error) {
-    console.error(error);
-}
-
-if (typeof fetch === "function") {
-    var navRequest = fetch("./nav.inc.html");
-    navRequest = navRequest.then(onNavResponse);
-    navRequest = navRequest.then(onNavBody);
-    navRequest = navRequest.then(onNavDone);
-    navRequest.catch(onNavError);
+if (typeof fetch === 'function') {
+  const init = () => {
+    if (typeof scrollToNavItem !== 'function') return false
+    scrollToNavItem()
+    // hideAllButCurrent not always loaded
+    if (typeof hideAllButCurrent === 'function') hideAllButCurrent()
+    return true
+  }
+  fetch('./nav.inc.html')
+    .then(response => response.ok ? response.text() : `${response.url} => ${response.status} ${response.statusText}`)
+    .then(body => {
+      document.querySelector('nav').innerHTML += body
+      // nav.js should be quicker to load than nav.inc.html, a fallback just in case
+      return init()
+    })
+    .then(done => {
+      if (done) return
+      let i = 0
+      ;(function waitUntilNavJs () {
+        if (init()) return
+        if (i++ < 100) return setTimeout(waitUntilNavJs, 300)
+        console.error(Error('nav.js not loaded after 30s waiting for it'))
+      })()
+    })
+    .catch(error => console.error(error))
 } else {
-    console.error(
-        new Error(
-            "Browser too old to display commonNav " +
-            "(remove commonNav docdash option)"
-        )
-    );
+  console.error(Error('Browser too old to display commonNav (remove commonNav docdash option)'))
 }
