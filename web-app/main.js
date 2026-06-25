@@ -1,4 +1,4 @@
-import Tabula, { Location, Player } from "./Tabula.js";
+import Tabula from "./Tabula.js";
 
 /**
  * Main UI entry point for the Tabula game.
@@ -19,24 +19,26 @@ const romanNumerals = [
 ];
 
 const dieFaces = {
-    1: "⚀",
-    2: "⚁",
-    3: "⚂",
-    4: "⚃",
-    5: "⚄",
-    6: "⚅"
+    "1": "⚀",
+    "2": "⚁",
+    "3": "⚂",
+    "4": "⚃",
+    "5": "⚄",
+    "6": "⚅"
 };
+
+const {Location, Player} = Tabula;
 
 let state = Tabula.createGame();
 const cellElements = [];
 
 const boardElement = document.getElementById("board");
-const boardCurrentPlayerElement =
-    document.getElementById("board-current-player");
+const boardCurrentPlayerElement = (
+    document.getElementById("board-current-player")
+);
 const diceWhiteElement = document.getElementById("dice-white");
 const diceBlackElement = document.getElementById("dice-black");
-const winnerElement =
-    document.getElementById("winner-message");
+const winnerElement = document.getElementById("winner-message");
 const rollWhiteButton = document.getElementById("roll-white-button");
 const rollBlackButton = document.getElementById("roll-black-button");
 const endTurnWhiteButton = document.getElementById("end-turn-white-button");
@@ -50,29 +52,47 @@ const barWhiteCount = document.getElementById("bar-white");
 const barBlackCount = document.getElementById("bar-black");
 const borneWhiteCount = document.getElementById("borne-white");
 const borneBlackCount = document.getElementById("borne-black");
+const gameRulesButton = document.getElementById("game-rules-button");
+const rulesModal = document.getElementById("rules-modal");
+const rulesBackdrop = document.getElementById("rules-modal-backdrop");
+const rulesCloseButton = document.getElementById("rules-close-button");
+
+/**
+ * Open or collapse the rules modal panel.
+ * @param {boolean} isOpen True to open, false to collapse.
+ */
+function setRulesModalOpen(isOpen) {
+    rulesModal.classList.toggle("is-open", isOpen);
+    rulesModal.setAttribute("aria-hidden", String(!isOpen));
+    gameRulesButton.setAttribute("aria-expanded", String(isOpen));
+}
 
 /**
  * Creates the board UI and attaches click/keyboard listeners
  * for each point.
  */
-const createBoard = () => {
+function handleBoardPointClick(event) {
+    handleBoardClick(Number(event.currentTarget.dataset.index));
+}
+
+const createBoard = function () {
+    let rowIndex = 0;
+
     boardElement.innerHTML = "";
 
-    Array.from({ length: 2 }).forEach((_, rowIndex) => {
+    while (rowIndex < 2) {
         const row = document.createElement("tr");
+        let columnIndex = 0;
 
-        Array.from({ length: 12 }).forEach((_, columnIndex) => {
-            const pointIndex =
-                rowIndex * 12 + columnIndex;
+        while (columnIndex < 12) {
+            const pointIndex = rowIndex * 12 + columnIndex;
 
             const cell = document.createElement("td");
-            const button =
-                document.createElement("button");
+            const button = document.createElement("button");
 
             button.type = "button";
             button.className = "board-point";
-            button.dataset.index =
-                pointIndex.toString();
+            button.dataset.index = pointIndex.toString();
 
             button.setAttribute(
                 "aria-label",
@@ -81,7 +101,7 @@ const createBoard = () => {
 
             button.addEventListener(
                 "click",
-                () => handleBoardClick(pointIndex)
+                handleBoardPointClick
             );
 
             button.addEventListener(
@@ -93,34 +113,33 @@ const createBoard = () => {
             row.appendChild(cell);
 
             cellElements[pointIndex] = button;
-        });
+            columnIndex += 1;
+        }
 
         boardElement.appendChild(row);
-    });
+        rowIndex += 1;
+    }
 };
 
 /**
  * Handle a board point click, selecting or moving pieces as needed.
  * @param {number} pointIndex Index of the board point that was clicked.
  */
-const handleBoardClick = (pointIndex) => {
+const handleBoardClick = function (pointIndex) {
     if (state.winner) {
         return;
     }
 
-    const legalFromPoint =
-        Tabula.getLegalMoves(state, pointIndex);
+    const legalFromPoint = Tabula.getLegalMoves(state, pointIndex);
 
     const selected = state.selectedPoint;
 
-    const isSameSelection =
-        selected === pointIndex;
+    const isSameSelection = selected === pointIndex;
 
     if (isSameSelection) {
-        state = {
-            ...state,
+        state = Object.assign({}, state, {
             selectedPoint: null
-        };
+        });
 
         render(state);
         return;
@@ -135,8 +154,7 @@ const handleBoardClick = (pointIndex) => {
         if (Tabula.isLegalMove(state, move)) {
             state = Tabula.movePiece(state, move);
 
-            state =
-                completeTurnIfReady(state);
+            state = completeTurnIfReady(state);
 
             render(state);
             return;
@@ -145,21 +163,20 @@ const handleBoardClick = (pointIndex) => {
 
     const point = state.board[pointIndex];
 
-    const canSelect =
+    const canSelect = (
         point.player === state.currentPlayer &&
         point.count > 0 &&
-        state.bar[state.currentPlayer] === 0;
+        state.bar[state.currentPlayer] === 0
+    );
 
     if (canSelect && legalFromPoint.length > 0) {
-        state = {
-            ...state,
+        state = Object.assign({}, state, {
             selectedPoint: pointIndex
-        };
+        });
     } else {
-        state = {
-            ...state,
+        state = Object.assign({}, state, {
             selectedPoint: null
-        };
+        });
     }
 
     render(state);
@@ -169,7 +186,7 @@ const handleBoardClick = (pointIndex) => {
  * Handle clicking a bar button to select or deselect the bar.
  * @param {Player} player Player whose bar entry is being selected.
  */
-const handleBarClick = (player) => {
+function handleBarClick(player) {
     if (
         state.winner ||
         state.currentPlayer !== player ||
@@ -181,27 +198,25 @@ const handleBarClick = (player) => {
     const selected = state.selectedPoint;
 
     if (selected === Location.BAR) {
-        state = {
-            ...state,
+        state = Object.assign({}, state, {
             selectedPoint: null
-        };
+        });
 
         render(state);
         return;
     }
 
-    state = {
-        ...state,
+    state = Object.assign({}, state, {
         selectedPoint: Location.BAR
-    };
+    });
 
     render(state);
-};
+}
 
 /**
  * Handle bearing off a selected piece if the move is legal.
  */
-const handleBearOff = () => {
+const handleBearOff = function () {
     if (
         state.winner ||
         state.selectedPoint === null ||
@@ -210,11 +225,7 @@ const handleBearOff = () => {
         return;
     }
 
-    const legalMoves =
-        Tabula.getLegalMoves(
-            state,
-            state.selectedPoint
-        );
+    const legalMoves = Tabula.getLegalMoves(state, state.selectedPoint);
 
     if (!legalMoves.includes(Location.OFF)) {
         return;
@@ -233,7 +244,7 @@ const handleBearOff = () => {
 /**
  * Handle the roll dice action for the current player.
  */
-const handleRollDice = () => {
+const handleRollDice = function () {
     if (state.winner || state.dice.length > 0) {
         return;
     }
@@ -246,7 +257,7 @@ const handleRollDice = () => {
 /**
  * Handle ending the current player's turn.
  */
-const handleEndTurn = () => {
+const handleEndTurn = function () {
     if (state.winner || state.dice.length === 0) {
         return;
     }
@@ -259,7 +270,7 @@ const handleEndTurn = () => {
 /**
  * Handle restarting the game and resetting state.
  */
-const handleRestart = () => {
+const handleRestart = function () {
     state = Tabula.createGame();
 
     render(state);
@@ -270,11 +281,10 @@ const handleRestart = () => {
  * @param {KeyboardEvent} event Keyboard event that may move
  * focus between points.
  */
-const handleBoardKeyDown = (event) => {
+const handleBoardKeyDown = function (event) {
     const button = event.currentTarget;
 
-    const currentIndex =
-        Number(button.dataset.index);
+    const currentIndex = Number(button.dataset.index);
 
     let nextIndex = null;
 
@@ -304,7 +314,7 @@ const handleBoardKeyDown = (event) => {
  * @param {GameState} currentState Current game state.
  * @returns {GameState}
  */
-const completeTurnIfReady = (currentState) => {
+const completeTurnIfReady = function (currentState) {
     if (currentState.winner) {
         return currentState;
     }
@@ -320,19 +330,19 @@ const completeTurnIfReady = (currentState) => {
  * Render the game UI to reflect the latest state.
  * @param {GameState} currentState Current game state.
  */
-const render = (currentState) => {
-    const legalDestinations =
+const render = function (currentState) {
+    const legalDestinations = (
         currentState.selectedPoint === null
-            ? []
-            : Tabula.getLegalMoves(
-                currentState,
-                currentState.selectedPoint
-            );
+        ? []
+        : Tabula.getLegalMoves(
+            currentState,
+            currentState.selectedPoint
+        )
+    );
 
     currentState.board.forEach(
-        (point, index) => {
-            const button =
-                cellElements[index];
+        function (point, index) {
+            const button = cellElements[index];
 
             button.className = "board-point";
 
@@ -351,8 +361,7 @@ const render = (currentState) => {
 
             if (
                 point.player &&
-                point.player !==
-                    currentState.currentPlayer &&
+                point.player !== currentState.currentPlayer &&
                 point.count > 1
             ) {
                 button.classList.add("blocked");
@@ -370,21 +379,25 @@ const render = (currentState) => {
                 button.classList.add("legal");
             }
 
+            const pieceClass = (
+                point.player
+                ? point.player.toLowerCase()
+                : ""
+            );
+
+            const piecesHtml = new Array(point.count).fill("").map(
+                function () {
+                    return (
+                        "<span class=\"piece " +
+                        pieceClass +
+                        "\" aria-hidden=\"true\"></span>"
+                    );
+                }
+            ).join("");
+
             button.innerHTML = `
                 <div class="piece-stack">
-                    ${Array.from(
-                        { length: point.count },
-                        () => `
-                            <span
-                                class="piece ${
-                                    point.player
-                                        ? point.player.toLowerCase()
-                                        : ""
-                                }"
-                                aria-hidden="true"
-                            ></span>
-                        `
-                    ).join("")}
+                    ${piecesHtml}
                 </div>
 
                 <span class="point-label">
@@ -397,23 +410,29 @@ const render = (currentState) => {
                 `Point ${index + 1}, ${
                     point.player || "empty"
                 }, ${point.count} piece${
-                    point.count === 1 ? "" : "s"
+                    (
+                        point.count === 1
+                        ? ""
+                        : "s"
+                    )
                 }`
             );
         }
     );
 
-    boardCurrentPlayerElement.textContent =
-        currentState.currentPlayer;
+    boardCurrentPlayerElement.textContent = currentState.currentPlayer;
 
-    const diceHtml =
+    const diceHtml = (
         currentState.dice.length > 0
-            ? currentState.dice.map(
-                (die) => (
+        ? currentState.dice.map(
+            function (die) {
+                return (
                     `<span class="die-face">${dieFaces[die] || ""}</span>`
-                )
-            ).join("")
-            : "Click roll dice to begin";
+                );
+            }
+        ).join("")
+        : "Click roll dice to begin"
+    );
 
     // Show dice only for the active player; other player's panel shows prompt
     if (currentState.currentPlayer === Player.WHITE) {
@@ -424,58 +443,72 @@ const render = (currentState) => {
         diceWhiteElement.innerHTML = "Click roll dice to begin";
     }
 
-    winnerElement.textContent =
-        currentState.winner
-            ? `Winner: ${currentState.winner}`
-            : "";
+    const hasWinner = currentState.winner !== null;
 
-    rollWhiteButton.disabled =
+    winnerElement.textContent = (
+        hasWinner
+        ? `Winner: ${currentState.winner}`
+        : ""
+    );
+
+    winnerElement.classList.toggle(
+        "is-visible",
+        hasWinner
+    );
+
+    winnerElement.setAttribute(
+        "aria-hidden",
+        String(!hasWinner)
+    );
+
+    rollWhiteButton.disabled = (
         currentState.winner !== null ||
         currentState.dice.length > 0 ||
-        currentState.currentPlayer !== Player.WHITE;
+        currentState.currentPlayer !== Player.WHITE
+    );
 
-    rollBlackButton.disabled =
+    rollBlackButton.disabled = (
         currentState.winner !== null ||
         currentState.dice.length > 0 ||
-        currentState.currentPlayer !== Player.BLACK;
+        currentState.currentPlayer !== Player.BLACK
+    );
 
-    endTurnWhiteButton.disabled =
+    endTurnWhiteButton.disabled = (
         currentState.winner !== null ||
         currentState.dice.length === 0 ||
-        currentState.currentPlayer !== Player.WHITE;
+        currentState.currentPlayer !== Player.WHITE
+    );
 
-    endTurnBlackButton.disabled =
+    endTurnBlackButton.disabled = (
         currentState.winner !== null ||
         currentState.dice.length === 0 ||
-        currentState.currentPlayer !== Player.BLACK;
+        currentState.currentPlayer !== Player.BLACK
+    );
 
-    bearOffWhiteButton.disabled =
+    bearOffWhiteButton.disabled = (
         currentState.currentPlayer !== Player.WHITE ||
         !legalDestinations.includes(Location.OFF) ||
-        currentState.winner !== null;
+        currentState.winner !== null
+    );
 
-    bearOffBlackButton.disabled =
+    bearOffBlackButton.disabled = (
         currentState.currentPlayer !== Player.BLACK ||
         !legalDestinations.includes(Location.OFF) ||
-        currentState.winner !== null;
+        currentState.winner !== null
+    );
 
-    barWhiteCount.textContent =
-        currentState.bar[Player.WHITE];
+    barWhiteCount.textContent = currentState.bar[Player.WHITE];
 
-    barBlackCount.textContent =
-        currentState.bar[Player.BLACK];
+    barBlackCount.textContent = currentState.bar[Player.BLACK];
 
-    borneWhiteCount.textContent =
-        currentState.borneOff[Player.WHITE];
+    borneWhiteCount.textContent = currentState.borneOff[Player.WHITE];
 
-    borneBlackCount.textContent =
-        currentState.borneOff[Player.BLACK];
+    borneBlackCount.textContent = currentState.borneOff[Player.BLACK];
 
     barWhiteButton.classList.toggle(
         "active",
-        currentState.currentPlayer ===
-            Player.WHITE &&
-            currentState.bar[Player.WHITE] > 0
+        currentState.currentPlayer === Player.WHITE &&
+        currentState.bar[Player.WHITE] > 0
     );
 
     barWhiteButton.classList.toggle(
@@ -485,9 +518,8 @@ const render = (currentState) => {
 
     barBlackButton.classList.toggle(
         "active",
-        currentState.currentPlayer ===
-            Player.BLACK &&
-            currentState.bar[Player.BLACK] > 0
+        currentState.currentPlayer === Player.BLACK &&
+        currentState.bar[Player.BLACK] > 0
     );
 
     barBlackButton.classList.toggle(
@@ -499,25 +531,25 @@ const render = (currentState) => {
 createBoard();
 render(state);
 
-rollWhiteButton.addEventListener("click", () => {
+rollWhiteButton.addEventListener("click", function () {
     if (state.currentPlayer === Player.WHITE) {
         handleRollDice();
     }
 });
 
-rollBlackButton.addEventListener("click", () => {
+rollBlackButton.addEventListener("click", function () {
     if (state.currentPlayer === Player.BLACK) {
         handleRollDice();
     }
 });
 
-endTurnWhiteButton.addEventListener("click", () => {
+endTurnWhiteButton.addEventListener("click", function () {
     if (state.currentPlayer === Player.WHITE) {
         handleEndTurn();
     }
 });
 
-endTurnBlackButton.addEventListener("click", () => {
+endTurnBlackButton.addEventListener("click", function () {
     if (state.currentPlayer === Player.BLACK) {
         handleEndTurn();
     }
@@ -527,22 +559,48 @@ restartButton.addEventListener("click", handleRestart);
 
 barWhiteButton.addEventListener(
     "click",
-    () => handleBarClick(Player.WHITE)
+    function () {
+        handleBarClick(Player.WHITE);
+    }
 );
 
 barBlackButton.addEventListener(
     "click",
-    () => handleBarClick(Player.BLACK)
+    function () {
+        handleBarClick(Player.BLACK);
+    }
 );
 
-bearOffWhiteButton.addEventListener("click", () => {
+bearOffWhiteButton.addEventListener("click", function () {
     if (state.currentPlayer === Player.WHITE) {
         handleBearOff();
     }
 });
 
-bearOffBlackButton.addEventListener("click", () => {
+bearOffBlackButton.addEventListener("click", function () {
     if (state.currentPlayer === Player.BLACK) {
         handleBearOff();
+    }
+});
+
+gameRulesButton.addEventListener("click", function () {
+    setRulesModalOpen(true);
+});
+
+rulesBackdrop.addEventListener("click", function () {
+    setRulesModalOpen(false);
+});
+
+rulesCloseButton.addEventListener("click", function () {
+    setRulesModalOpen(false);
+});
+
+document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") {
+        return;
+    }
+
+    if (rulesModal.classList.contains("is-open")) {
+        setRulesModalOpen(false);
     }
 });

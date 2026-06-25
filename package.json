@@ -5,7 +5,9 @@
   "description": "",
   "main": "web-app/Module.js",
   "scripts": {
-    "test": "mocha --recursive web-app/tests"
+    "test": "mocha --recursive web-app/tests",
+    "docs": "jsdoc -c jsdoc.json",
+    "docs:open": "start docs/index.html"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +15,9 @@
     "ramda": "^0.32.0"
   },
   "devDependencies": {
+    "@babel/cli": "^8.0.1",
+    "@babel/core": "^8.0.1",
+    "@babel/preset-env": "^8.0.2",
     "docdash": "^2.0.2",
     "mocha": "^11.7.5"
   }

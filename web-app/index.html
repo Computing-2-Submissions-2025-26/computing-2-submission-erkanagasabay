@@ -25,19 +25,31 @@
         <div class="title-group">
             <h1>Tabula</h1>
 
-            <p>
-                Browser-based implementation of
-                the ancient Roman board game.
-            </p>
+            <div class="subtitle-row">
+                <p>
+                    Browser-based implementation of
+                    the ancient Roman board game.
+                </p>
 
-            <a href="/docs/">API Documentation</a>
+                <a href="../docs/index.html">API Documentation</a>
+            </div>
         </div>
 
         <div class="header-controls">
             <button
+                id="game-rules-button"
+                type="button"
+                class="action-button header-action-button"
+                aria-expanded="false"
+                aria-controls="rules-modal"
+            >
+                Game rules
+            </button>
+
+            <button
                 id="restart-button"
                 type="button"
-                class="action-button"
+                class="action-button header-action-button"
             >
                 Restart game
             </button>
@@ -57,12 +69,6 @@
         >
             Click roll dice to begin
         </div>
-
-        <p
-            id="winner-message"
-            class="winner-message"
-            aria-live="assertive"
-        ></p>
 
         <div class="control-group">
             <button
@@ -123,11 +129,6 @@
             Click roll dice to begin
         </div>
 
-        <p
-            class="winner-message"
-            aria-live="assertive"
-        ></p>
-
         <div class="control-group">
             <button
                 id="roll-black-button"
@@ -183,6 +184,12 @@
                     Current player:
                     <strong id="board-current-player"></strong>
                 </span>
+
+                <span
+                    id="winner-message"
+                    class="winner-message global"
+                    aria-live="assertive"
+                ></span>
             </div>
 
             <div
@@ -196,5 +203,102 @@
             </div>
         </section>
     </main>
+
+    <section
+        id="rules-modal"
+        class="rules-modal"
+        aria-label="Game rules"
+        aria-hidden="true"
+    >
+        <button
+            id="rules-modal-backdrop"
+            type="button"
+            class="rules-modal-backdrop"
+            aria-label="Close game rules"
+        ></button>
+
+        <article
+            class="rules-modal-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="rules-modal-title"
+        >
+            <div class="rules-modal-header">
+                <h2 id="rules-modal-title">Game rules</h2>
+
+                <button
+                    id="rules-close-button"
+                    type="button"
+                    class="action-button rules-close-button"
+                    aria-label="Collapse game rules"
+                >
+                    Close rules
+                </button>
+            </div>
+
+            <div class="rules-content">
+                <h3>Objective</h3>
+
+                <p>
+                    <strong>Win condition:</strong> move all <strong>15</strong>
+                    of your pieces into your home board, then
+                    <strong>bear off</strong> every piece before your opponent.
+                </p>
+
+                <h3>Board Direction and Movement</h3>
+
+                <p>
+                    <strong>Opposite directions:</strong> players travel around
+                    the board in opposite ways. <strong>White</strong> moves from
+                    lower-numbered points toward higher-numbered points,
+                    while <strong>Black</strong> moves from higher-numbered points
+                    toward lower-numbered points.
+                </p>
+
+                <p>
+                    <strong>Using dice:</strong> on your turn, roll and spend
+                    available dice values to make legal moves.
+                    A move is only legal if the destination is open
+                    according to game rules.
+                </p>
+
+                <h3>Turn Sequence</h3>
+
+                <ol>
+                    <li><strong>Roll dice</strong> at the start of your turn.</li>
+                    <li><strong>Select a piece</strong> from a board point or the bar.</li>
+                    <li><strong>Move to highlighted legal points</strong> using die values.</li>
+                    <li><strong>End turn</strong> when no legal moves remain.</li>
+                </ol>
+
+                <h3>Capturing and the Bar</h3>
+
+                <p>
+                    <strong>Capture rule:</strong> landing on a point with exactly
+                    one opposing piece captures it and sends it to the
+                    <strong>bar</strong>.
+                </p>
+
+                <p>
+                    <strong>Bar priority:</strong> if you have any pieces on the bar,
+                    you must re-enter those pieces before moving other pieces.
+                    Re-entry must follow a legal die value and open destination.
+                </p>
+
+                <h3>Bearing Off</h3>
+
+                <p>
+                    <strong>When allowed:</strong> you can bear off only after all of
+                    your remaining pieces are inside your home board.
+                </p>
+
+                <p>
+                    <strong>How to bear off:</strong> use legal dice to move pieces
+                    off the board. The first player to bear off all 15 pieces
+                    wins the game.
+                </p>
+            </div>
+        </article>
+    </section>
 </body>
 </html>
