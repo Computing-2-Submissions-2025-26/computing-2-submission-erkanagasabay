@@ -1,4 +1,5 @@
-//IE Fix, src: https://www.reddit.com/r/programminghorror/comments/6abmcr/nodelist_lacks_foreach_in_internet_explorer/
-if (typeof(NodeList.prototype.forEach)!==typeof(alert)){
-    NodeList.prototype.forEach=Array.prototype.forEach;
+/*global NodeList */
+// IE fix for browsers where NodeList.prototype.forEach is missing.
+if (typeof NodeList.prototype.forEach !== typeof alert) {
+    NodeList.prototype.forEach = Array.prototype.forEach;
 }

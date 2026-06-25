@@ -1,0 +1,6 @@
+{
+  "jslint.excludePath": ".jslintignore",
+  "jslint.exclude": {
+    "docs/scripts/prettify/**/*.js": true
+  }
+}
